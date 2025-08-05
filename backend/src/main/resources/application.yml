@@ -10,7 +10,10 @@ cors:
   exposed-headers: "*"
 
 aws:
-  region:ap-south-1
+  region: ap-south-1
+  s3:
+    buckets:
+      customer: crud-gargi-customer-test
 
 management:
   endpoints:
