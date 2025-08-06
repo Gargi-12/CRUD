@@ -1,7 +1,12 @@
 import {Form, Formik, useField} from 'formik';
 import * as Yup from 'yup';
 import {Alert, AlertIcon, Box, Button, FormLabel, Input, Select, Stack, VStack,Image} from "@chakra-ui/react";
-import {saveCustomer, updateCustomer} from "../../services/client.js";
+import {
+    getProfilePictureUrl,
+    saveCustomer,
+    updateCustomer,
+    uploadCustomerProfilePicture
+} from "../../services/client.js";
 import {successNotification, errorNotification} from "../../services/notification.js";
 import React, {useCallback} from 'react'
 import {useDropzone} from 'react-dropzone'
@@ -24,10 +29,22 @@ const MyTextInput = ({label, ...props}) => {
         </Box>
     );
 };
-const MyDropzone = () => {
+const MyDropzone = ({customerId,fetchCustomers}) => {
 
     const onDrop = useCallback(acceptedFiles => {
-        // Do something with the files
+        const formData=new FormData();
+        formData.append("file",acceptedFiles[0])
+
+
+        uploadCustomerProfilePicture(
+            customerId,
+            formData
+        ).then(() => {
+            successNotification("Success","Profile picture uploaded")
+            fetchCustomers();
+        }).catch(()=>{
+            errorNotification("Error","Profile picture failed upload")
+        })
     }, [])
     const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
@@ -58,9 +75,10 @@ const UpdateCustomerForm = ({ fetchCustomers, initialValues, customerId }) => {
                 borderRadius={'full'}
                 boxSize={'150px'}
                 objectFit={'cover'}
-                src={''}
+                src={getProfilePictureUrl(customerId)}
                 />
-                <MyDropzone/>
+                <MyDropzone customerId={customerId}
+                            fetchCustomers={fetchCustomers}/>
             </VStack>
             <Formik
                 initialValues={initialValues}
