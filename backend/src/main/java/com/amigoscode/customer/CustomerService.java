@@ -130,7 +130,7 @@ public class CustomerService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
+        customerDao.updateCustomerProfileImageId(customerId, profileImageId);
     }
 
     public byte[] getCustomerProfileImage(Integer customerId) {
@@ -139,11 +139,16 @@ public class CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "customer with id [%s] not found".formatted(customerId)
                 ));
-        var profileImageId="TODO";
+
+        if(customer.profileImageId().isBlank()){
+            throw new ResourceNotFoundException(
+                    "customer with id [%s] profile image not found".formatted(customerId)
+            );
+        }
 
         byte[] profileImage = s3Service.getObject(
                 s3Buckets.getCustomer(),
-                "profile-images/%s/%s".formatted(customerId, profileImageId)
+                "profile-images/%s/%s".formatted(customerId, customer.profileImageId())
         );
         return profileImage;
     }
